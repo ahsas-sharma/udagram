@@ -20,7 +20,7 @@ import { RequestError } from 'request-promise/errors';
   const rp = require('request-promise');
 
   // Path for storing images
-  const util_path = '/util/'
+  const util_dir = path.join(__dirname, '/util/');
 
   // Use the body parser middleware for post requests
   app.use(bodyParser.json());
@@ -53,10 +53,10 @@ import { RequestError } from 'request-promise/errors';
       } else {
 
         // set paths to write image files
-        const dir = path.join(__dirname, util_path);
-        const raw_save_path = dir + "in" + Math.floor(Math.random() * 2000)+'.jpg';
-        const filtered_save_path = dir + "out" + Math.floor(Math.random() * 2000)+'.jpg';
-        console.log(dir + "++++" + raw_save_path + "++++" +filtered_save_path);
+        console.log(__dirname);
+        console.log(util_dir);
+        const raw_save_path = util_dir + "in" + Math.floor(Math.random() * 2000)+'.jpg';
+        const filtered_save_path = util_dir + "out" + Math.floor(Math.random() * 2000)+'.jpg';
 
         // write body to file
         let writer = fs.createWriteStream(raw_save_path);
@@ -67,7 +67,7 @@ import { RequestError } from 'request-promise/errors';
         writer.end();
 
         // apply cv2 canny edge filter through python script 
-        const pythonProcess = spawn ('python3', ["src/util/image_filter.py", raw_save_path, filtered_save_path])
+        const pythonProcess = spawn ('python3', [util_dir+"image_filter.py", raw_save_path, filtered_save_path])
         if (pythonProcess !== undefined) {
             pythonProcess.stdout.on('data', (data) => {
               res.status(200).sendFile(filtered_save_path, ()=> {
