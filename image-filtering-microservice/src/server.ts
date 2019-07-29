@@ -19,9 +19,8 @@ import { RequestError } from 'request-promise/errors';
   const path = require('path');
   const rp = require('request-promise');
 
-  // Paths for storing images
-  const in_path = '/util/in/'
-  const out_path = '/util/out/'
+  // Path for storing images
+  const util_path = '/util/'
 
   // Use the body parser middleware for post requests
   app.use(bodyParser.json());
@@ -41,8 +40,8 @@ import { RequestError } from 'request-promise/errors';
     var options = {
       method: 'GET',
       uri: req.query.image_url,
-      encoding: null,
-      resolveWithFullResponse: true
+      resolveWithFullResponse: true,
+      encoding: null
     };
 
     rp(options)
@@ -53,24 +52,26 @@ import { RequestError } from 'request-promise/errors';
         res.status(422).send('No image found at given url.');
       } else {
 
-        // setup in directory and path
-        const in_dir = path.join(__dirname, in_path);
-        const in_save_path = in_dir+Math.floor(Math.random() * 2000)+'.jpg';
+        // set paths to write image files
+        const dir = path.join(__dirname, util_path);
+        const raw_save_path = dir + "in" + Math.floor(Math.random() * 2000)+'.jpg';
+        const filtered_save_path = dir + "out" + Math.floor(Math.random() * 2000)+'.jpg';
+        console.log(dir + "++++" + raw_save_path + "++++" +filtered_save_path);
 
         // write body to file
-        let writer = fs.createWriteStream(in_save_path);
+        let writer = fs.createWriteStream(raw_save_path);
         writer.write(response.body);
-
-        // setup out directory and path
-        const out_dir = path.join(__dirname, out_path);
-        const out_save_path = out_dir+Math.floor(Math.random() * 2000)+'.jpg';
+        writer.on('finish', () => {
+          console.log('Finished writing to file.');
+        });
+        writer.end();
 
         // apply cv2 canny edge filter through python script 
-        const pythonProcess = spawn ('python3', ["src/util/image_filter.py", in_save_path, out_save_path])
+        const pythonProcess = spawn ('python3', ["src/util/image_filter.py", raw_save_path, filtered_save_path])
         if (pythonProcess !== undefined) {
             pythonProcess.stdout.on('data', (data) => {
-              res.status(200).sendFile(out_save_path, ()=> {
-                deleteLocalFiles([in_save_path, out_save_path]);
+              res.status(200).sendFile(filtered_save_path, ()=> {
+                deleteLocalFiles([raw_save_path, filtered_save_path]);
               });
             });
         } else {

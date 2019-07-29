@@ -1,13 +1,11 @@
 import sys
 import cv2
 import os
-import urllib.request
 
 def process(): 
 	in_path = sys.argv[1]
 	out_path = sys.argv[2]
-	print(in_path)
-	print(out_path)
+	
 	# Retrieve the image from path
 	img = cv2.imread(in_path)
 	if img is None:

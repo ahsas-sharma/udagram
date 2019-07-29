@@ -1,7 +1,7 @@
 {
   "name": "image-filtering-microservice",
   "version": "1.0.0",
-  "description": "",
+  "description": "An image filtering service that applies OpenCV's canny edge detector filter.",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -26,13 +26,15 @@
     "@types/request": "^2.48.2",
     "ts-node-dev": "^1.0.0-pre.39",
     "tslint": "^5.16.0",
-    "typescript": "^3.4.5",
-    "request": "^2.88.0"
+    "typescript": "^3.4.5"
   },
   "dependencies": {
     "@types/request-promise": "^4.1.44",
     "express": "^4.17.0",
     "jimp": "^0.6.4",
+    "request": "^2.88.0",
+    "request-promise-core": "^1.1.2",
     "request-promise": "^4.2.4"
+
   }
 }
