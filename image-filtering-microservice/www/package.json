@@ -1,0 +1,40 @@
+{
+  "name": "image-filtering-microservice",
+  "version": "1.0.0",
+  "description": "An image filtering service that applies OpenCV's canny edge detector filter.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "clean": "rm -rf www/ || true",
+    "build": "npm run clean && tsc && cp package.json www/package.json && cp src/util/image_filter.py www/util/image_filter.py && mkdir www/tmp/ && cd www && zip -r Archive.zip . && cd ..",
+    "dev": "ts-node-dev --respawn --transpileOnly ./src/server.ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ahsas-sharma/udagram.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ahsas-sharma/udagram/issues"
+  },
+  "homepage": "https://github.com/ahsas-sharma/udagram#readme",
+  "devDependencies": {
+    "@types/bluebird": "^3.5.27",
+    "@types/express": "^4.16.1",
+    "@types/node": "^11.13.11",
+    "@types/request": "^2.48.2",
+    "ts-node-dev": "^1.0.0-pre.39",
+    "tslint": "^5.16.0",
+    "typescript": "^3.4.5"
+  },
+  "dependencies": {
+    "@types/request-promise": "^4.1.44",
+    "express": "^4.17.0",
+    "jimp": "^0.6.4",
+    "request": "^2.88.0",
+    "request-promise-core": "^1.1.2",
+    "request-promise": "^4.2.4"
+
+  }
+}
