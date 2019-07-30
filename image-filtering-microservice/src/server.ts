@@ -20,7 +20,7 @@ import { RequestError } from 'request-promise/errors';
   const rp = require('request-promise');
 
   // Path for storing images
-  const util_path = '/util/'
+  const util_dir = path.join(__dirname, '/util/');
 
   // Use the body parser middleware for post requests
   app.use(bodyParser.json());
@@ -34,7 +34,7 @@ import { RequestError } from 'request-promise/errors';
 
   // Image Filter Endpoint
   // Downloads image from the url in query, applies edge detector filter on the image
-  // and returns the filtered image. (Url validation done through Request-Promise)
+  // and returns the filtered image. (Url validation done through request-promise)
   app.get("/filteredimage", async (req, res) => {
 
     var options = {
@@ -53,34 +53,33 @@ import { RequestError } from 'request-promise/errors';
       } else {
 
         // set paths to write image files
-        const dir = path.join(__dirname, util_path);
-        const raw_save_path = dir + "in" + Math.floor(Math.random() * 2000)+'.jpg';
-        const filtered_save_path = dir + "out" + Math.floor(Math.random() * 2000)+'.jpg';
-        console.log(dir + "++++" + raw_save_path + "++++" +filtered_save_path);
+        console.log("Util dir : %j", util_dir);
+        const fileName = Math.floor(Math.random() * 2000)+'.jpg';
+        const raw_save_path = util_dir + "in" + fileName;
+        const filtered_save_path = util_dir + "out" + fileName;
 
         // write body to file
         let writer = fs.createWriteStream(raw_save_path);
         writer.write(response.body);
-        writer.on('finish', () => {
-          console.log('Finished writing to file.');
-        });
         writer.end();
-
+        
         // apply cv2 canny edge filter through python script 
-        const pythonProcess = spawn ('python3', ["src/util/image_filter.py", raw_save_path, filtered_save_path])
+        const pythonProcess = spawn ('python', [util_dir+"image_filter.py", raw_save_path, filtered_save_path])
         if (pythonProcess !== undefined) {
-            pythonProcess.stdout.on('data', (data) => {
-              res.status(200).sendFile(filtered_save_path, ()=> {
-                deleteLocalFiles([raw_save_path, filtered_save_path]);
-              });
+          pythonProcess.stdout.on('data', (data) => {
+            // Return the filtered image and delete local files
+            res.status(200).sendFile(filtered_save_path, ()=> {
+              deleteLocalFiles([raw_save_path, filtered_save_path]);
             });
-        } else {
-          res.status(500).send('An error occured while filtering image.');
-        }
+          });
+      } else {
+        res.status(500).send('An error occured while filtering image.');
+      }
+        
       }
     })
     .catch(function (err: RequestError){
-      res.status(520).send(err.message);
+      res.status(500).send(err.message);
     });
   });
 
@@ -90,4 +89,5 @@ import { RequestError } from 'request-promise/errors';
       console.log( `server running http://localhost:${ port }` );
       console.log( `press CTRL+C to stop server` );
   } );
+
 })();
